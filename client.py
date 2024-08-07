@@ -1,18 +1,23 @@
-import requests
+import socket
 
-def main():
-    url = 'http://localhost:4221'
+def connect_to_server(server_ip, server_port):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            print("Response from server:", response.text)
-        else:
-            print("Failed to connect to server, status code:", response.status_code)
-    except requests.exceptions.RequestException as e:
-        print("Error communicating with the server:", e)
+        client_socket.connect((server_ip, server_port))
+
+        client_socket.send(b"GET /index.html HTTP/1.1\r\nHost: localhost:4221\r\nUser-Agent: curl/7.64.1\r\nAccept: */*\r\n\r\n")
+        response = client_socket.recv(4096).decode('utf-8')
+
+        print("Response from server:")
+        print(response)
+
+    finally:
+        client_socket.close()
 
 if __name__ == "__main__":
-    main()
+    server_ip = "127.0.0.1"  # Change this to your server's IP
+    server_port = 4221       # Change this to your server's port
+
+    connect_to_server(server_ip, server_port)
 
